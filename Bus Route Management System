@@ -1,0 +1,133 @@
+from collections import deque
+
+# 1. Store the bus network as a dictionary of dictionaries (stop -> neighbours -> distance)
+bus_network = {
+    'Durg': {'Bhilai': 10, 'Raipur': 40, 'Rajnandgaon': 45},
+    'Bhilai': {'Durg': 10, 'Raipur': 30},
+    'Raipur': {'Bhilai': 30, 'Durg': 40, 'Bilaspur': 110, 'Dhamtari': 80},
+    'Bilaspur': {'Raipur': 110},
+    'Dhamtari': {'Raipur': 80},
+    'Rajnandgaon': {'Durg': 45},
+    'Jagdalpur': {'Kondagaon': 75},
+    'Kondagaon': {'Jagdalpur': 75}
+}
+
+FARE_PER_KM = 1.50
+
+def show_connections(stop_name):
+    """Shows all stops and direct connections of a chosen stop[cite: 1]."""
+    stop_title = stop_name.strip().title()
+    if stop_title not in bus_network:
+        print(f"Stop '{stop_title}' not found.")
+        return
+    
+    connections = bus_network[stop_title]
+    # Sort neighbors alphabetically for consistent formatting
+    sorted_connections = sorted(connections.items())
+    conn_strings = [f"{neighbour} ({dist} km)" for neighbour, dist in sorted_connections]
+    
+    print(f"{stop_title} connects to: {', '.join(conn_strings)}")
+
+def find_route(start_stop, end_stop):
+    """Finds the route with the fewest stops between two stops using BFS[cite: 1]."""
+    start = start_stop.strip().title()
+    end = end_stop.strip().title()
+    
+    if start not in bus_network:
+        print(f"Stop '{start}' not found.")
+        return
+    if end not in bus_network:
+        print(f"Stop '{end}' not found.")
+        return
+        
+    # Boundary / Minimum Input: Same source and destination
+    if start == end:
+        print("Source and destination are the same. Distance: 0 km. Fare: Rs. 0.00")
+        return
+
+    # BFS to find the shortest path in terms of stops
+    queue = deque([[start]])
+    visited = {start}
+    found_path = None
+    
+    while queue:
+        path = queue.popleft()
+        current = path[-1]
+        
+        if current == end:
+            found_path = path
+            break
+            
+        for neighbor in sorted(bus_network[current].keys()):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                new_path = list(path)
+                new_path.append(neighbor)
+                queue.append(new_path)
+                
+    if not found_path:
+        print(f"No route available between {start} and {end}.")
+        return
+        
+    # Calculate total distance along the path
+    total_distance = 0
+    for i in range(len(found_path) - 1):
+        total_distance += bus_network[found_path[i]][found_path[i+1]]
+        
+    total_fare = total_distance * FARE_PER_KM
+    
+    route_str = " -> ".join(found_path)
+    print(f"Route: {route_str}")
+    print(f"Stops: {len(found_path)} | Distance: {total_distance} km | Fare: Rs. {total_fare:.2f}")
+
+def run_test_cases():
+    """Runs all four required test cases automatically[cite: 1]."""
+    print("=== Running Test Cases ===")
+    
+    print("\n--- Test Case 1: Normal Input ---[cite: 1]")
+    print("Menu: Show connections | Stop: Raipur[cite: 1]")
+    show_connections("Raipur")
+    
+    print("\n--- Test Case 2: Boundary / Minimum Input ---[cite: 1]")
+    print("Menu: Find route | From: Durg | To: Durg[cite: 1]")
+    find_route("Durg", "Durg")
+    
+    print("\n--- Test Case 3: Invalid Input ---[cite: 1]")
+    print("(a) Menu: Find route | From: Durg | To: Jagdalpur[cite: 1]")
+    find_route("Durg", "Jagdalpur")
+    print("(b) Menu: Show connections | Stop: Delhi[cite: 1]")
+    show_connections("Delhi")
+    
+    print("\n--- Test Case 4: Different Valid Scenario ---[cite: 1]")
+    print("Menu: Find route | From: Bhilai | To: Bilaspur[cite: 1]")
+    find_route("Bhilai", "Bilaspur")
+    print("\n============================")
+
+def main():
+    # Run required test cases on startup to satisfy requirement 5[cite: 1]
+    run_test_cases()
+    
+    # Interactive console menu loop
+    while True:
+        print("\n--- Bus Route Management System Menu ---")
+        print("1. Show connections of a stop")
+        print("2. Find route between two stops")
+        print("3. Exit")
+        
+        choice = input("Enter your choice (1-3): ").strip()
+        
+        if choice == '1':
+            stop = input("Enter stop name: ")
+            show_connections(stop)
+        elif choice == '2':
+            src = input("Enter source stop: ")
+            dest = input("Enter destination stop: ")
+            find_route(src, dest)
+        elif choice == '3':
+            print("Exiting program. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please select 1, 2, or 3.")
+
+if __name__ == "__main__":
+    main()
