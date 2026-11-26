@@ -1,8 +1,3 @@
-# Name : Koshvendra Kumar
-# ERP : RU-26-01234
-# PS : 81
-# Project Title : Bus Route Management System
-
 # Python-Project
 
 # **Project Title : Bus Route Management System**
